@@ -1,0 +1,16 @@
+{
+    "name": "FPSInteraction",
+    "rootNamespace": "",
+    "references": [
+        "GUID:8e9dabe0f80bc934e982ac1c61bcadd4"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
