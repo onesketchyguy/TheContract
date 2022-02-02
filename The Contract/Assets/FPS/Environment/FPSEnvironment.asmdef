@@ -1,0 +1,16 @@
+{
+    "name": "FPSEnvironment",
+    "rootNamespace": "",
+    "references": [
+        "GUID:135d46d299bcd324da1c322379a9180e"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

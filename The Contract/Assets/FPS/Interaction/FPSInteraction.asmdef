@@ -2,7 +2,8 @@
     "name": "FPSInteraction",
     "rootNamespace": "",
     "references": [
-        "GUID:8e9dabe0f80bc934e982ac1c61bcadd4"
+        "GUID:8e9dabe0f80bc934e982ac1c61bcadd4",
+        "GUID:0c81eea3820c20e46bcc860c0b955164"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using FPS.UI;
 
 namespace FPS.Interaction
 {
@@ -10,9 +11,11 @@ namespace FPS.Interaction
         [SerializeField] private LayerMask interactableMask = 0;
         [SerializeField] private float interactionDistance = 3.0f;
         private Rigidbody highlighting = null;
+        private IInteractable interactable;
         private bool holding = false;
         private bool throwInput = false;
         private bool pickupInput = false;
+        [SerializeField] private TooltipManager tooltip = null;
 
         [SerializeField] HighlightPlus.HighlightProfile highlightProfile = null;
 
@@ -24,19 +27,20 @@ namespace FPS.Interaction
 
             if (Time.frameCount % 3 != 0) return;
 
-            if (highlighting == null)
+            if (highlighting == null && interactable == null)
             {
                 RaycastHit hit;
 
                 // Does the ray intersect any objects excluding the player layer
                 if (Physics.Raycast(rayparent.position, rayparent.TransformDirection(Vector3.forward), out hit, interactionDistance, interactableMask))
                 {
+                    interactable = hit.transform.gameObject.GetComponent<IInteractable>();
                     highlighting = hit.transform.GetComponent<Rigidbody>();
 
                     if (highlighting != null) GetTrigger().Highlight(true);
                 }
             }
-            else
+            else if (highlighting != null)
             {
                 if (throwInput)
                 {
@@ -78,6 +82,28 @@ namespace FPS.Interaction
                     }
                 }
             }
+            else if (interactable != null)
+            {
+                tooltip.Set(interactable.elementInfo, 10);
+
+                if (pickupInput)
+                {
+                    pickupInput = false;
+                    interactable.OnInteract();
+                }
+
+                RaycastHit hit;
+                // Does the ray intersect any objects excluding the player layer
+                if (Physics.Raycast(rayparent.position, rayparent.TransformDirection(Vector3.forward), out hit, Mathf.Infinity, interactableMask))
+                {
+                    var interactable = hit.transform.gameObject.GetComponent<IInteractable>();
+                    if (interactable != null && interactable != this.interactable) DropItem();
+                }
+                else
+                {
+                    DropItem();
+                }
+            }
 
             throwInput = false;
             pickupInput = false;
@@ -102,7 +128,7 @@ namespace FPS.Interaction
                 }
                 else
                 {
-                    var targetPos = Vector3.Slerp(highlighting.position, rayparent.transform.position + rayparent.transform.forward * holdDist, 10.0f * Time.deltaTime);
+                    var targetPos = Vector3.Slerp(highlighting.position, rayparent.transform.position + rayparent.transform.forward * holdDist, 8.5f * Time.deltaTime);
                     highlighting.MovePosition(targetPos);
                 }
             }
@@ -110,15 +136,21 @@ namespace FPS.Interaction
 
         private void DropItem()
         {
-            GetTrigger().Highlight(false);
+            if (highlighting != null)
+            {
+                GetTrigger().Highlight(false);
 
-            highlighting.useGravity = true;
-            holding = false;
-            highlighting = null;
+                highlighting.useGravity = true;
+                holding = false;
+                highlighting = null;
+            }
+            interactable = null;
         }
 
         private HighlightPlus.HighlightTrigger GetTrigger()
         {
+            if (highlighting == null) return null;
+
             var highlightEffect = highlighting.gameObject.GetComponent<HighlightPlus.HighlightTrigger>();
             if (highlightEffect == null)
             {
