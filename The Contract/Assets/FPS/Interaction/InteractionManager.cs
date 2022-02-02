@@ -128,6 +128,7 @@ namespace FPS.Interaction
                 }
                 else
                 {
+                    highlighting.velocity = Vector3.zero;
                     var targetPos = Vector3.Slerp(highlighting.position, rayparent.transform.position + rayparent.transform.forward * holdDist, 8.5f * Time.deltaTime);
                     highlighting.MovePosition(targetPos);
                 }
