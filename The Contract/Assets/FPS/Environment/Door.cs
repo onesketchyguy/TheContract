@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace FPS.Environment
@@ -8,9 +7,14 @@ namespace FPS.Environment
     {
         [SerializeField] private Transform doorObject = null;
         [SerializeField] private string tooltipInfo = "Door";
-        const float DOOR_SPEED = 150.0f;
 
-        private bool isOpen = false;
+        public bool isOpen = false;
+
+        [SerializeField] private Vector3 closedPoint, openPoint;
+        [SerializeField] private float closedRot = 0, openRot = 90;
+
+        [SerializeField] private float moveSpd = 10.0f;
+        [SerializeField] private float rotSpd = 150.0f;
 
         public string elementInfo { get => tooltipInfo; }
 
@@ -18,47 +22,48 @@ namespace FPS.Environment
         private void OnValidate()
         {
             if (doorObject == null) doorObject = transform;
+            if (isOpen && openPoint == Vector3.zero) openPoint = transform.position;
+            else if (!isOpen && closedPoint == Vector3.zero) closedPoint = transform.position;
         }
 #endif
 
         public void OnInteract()
         {
-            if (isOpen == false)
-            {
-                StartCoroutine(OpenDoor());
-                isOpen = true;
-            }
-            else
-            {
-                StartCoroutine(CloseDoor());
-                isOpen = false;
-            }
+            isOpen = !isOpen;
+            StartCoroutine(UpdateDoor());
         }
 
-        private IEnumerator OpenDoor()
+        private IEnumerator UpdateDoor()
         {
-            yield return null;
+            var targetPoint = isOpen ? openPoint : closedPoint;
+            var targetRot = isOpen ? openRot : closedRot;
+            var _rotSpd = isOpen ? rotSpd : -rotSpd;
 
-            while (doorObject.localRotation.eulerAngles.y < 85)
+            while (true)
             {
+                bool e = true;
                 yield return null;
-                doorObject.Rotate(doorObject.up, DOOR_SPEED * Time.deltaTime);
+
+                // Update position
+                if (Vector3.Distance(doorObject.position, targetPoint) > 0.1f)
+                {
+                    doorObject.position = Vector3.MoveTowards(doorObject.position, targetPoint, moveSpd * Time.deltaTime);
+                    e = false;
+                }
+
+                // Update rotation
+                if (Mathf.Abs(doorObject.localRotation.eulerAngles.y - targetRot) > 4.99f)
+                {
+                    doorObject.Rotate(doorObject.up, _rotSpd * Time.deltaTime);
+                    e = false;
+                }
+
+                if (e == true) break;
             }
 
-            doorObject.localRotation = Quaternion.Euler(Vector3.up * 90);
-        }
-
-        private IEnumerator CloseDoor()
-        {
-            yield return null;
-
-            while (doorObject.localRotation.eulerAngles.y > 5)
-            {
-                yield return null;
-                doorObject.Rotate(doorObject.up, -DOOR_SPEED * Time.deltaTime);
-            }
-
-            doorObject.localRotation = Quaternion.Euler(Vector3.zero);
+            // Set the data directly to prevent miscalculations
+            doorObject.position = targetPoint;
+            doorObject.localRotation = Quaternion.Euler(Vector3.up * targetRot);
         }
     }
 }

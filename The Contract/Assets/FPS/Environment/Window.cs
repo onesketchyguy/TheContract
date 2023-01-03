@@ -9,9 +9,11 @@ namespace FPS.Environment
         [SerializeField] private Vector3 enterPoint;
         [SerializeField] private Vector3 exitPoint;
 
-        [SerializeField] private string tooltipInfo = "Window";
+        [SerializeField] private string tooltipInfo = "Move through window";
 
-        public string elementInfo { get => tooltipInfo; }
+        [SerializeField] private Door windowObject;
+
+        public string elementInfo { get => (windowObject.isOpen ? tooltipInfo : ""); }
 
 #if UNITY_EDITOR
         private void OnValidate()
@@ -32,16 +34,17 @@ namespace FPS.Environment
         }
 #endif
 
-        // FIXME: Call this from the interaction manager
         public void OnInteract()
         {
-            // FIXME: Feed in player some other way, maybe a nearby collision check
+            // FIXME: Get the player some other way, maybe a nearby collision check
             var player = GameObject.FindGameObjectWithTag("Player");
             StartCoroutine(MoveThroughWindow(player));
         }
-
+        
         private IEnumerator MoveThroughWindow(GameObject obj)
         {
+            if (!windowObject.isOpen) yield break;
+
             yield return null;
             var pointA = transform.position + enterPoint;
             var pointB = transform.position + exitPoint;
