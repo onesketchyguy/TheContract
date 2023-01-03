@@ -533,6 +533,8 @@ MonoBehaviour:
   transitionSpeed: 2
   ladderSpeed: 5
   ladderTag: Ladder
+  capsuleHeight_standing: 1.8
+  capsuleHeight_crouched: 1.2
   stepManager: {fileID: 2333172492165485191}
 --- !u!114 &8060825675459273065
 MonoBehaviour:

@@ -59,6 +59,11 @@ namespace FPS
 
         private Vector3 velocity = Vector3.zero;
 
+        [Header("Crouching")]
+        [SerializeField] private float capsuleHeight_standing;
+        [SerializeField] private float capsuleHeight_crouched;
+        private bool crouching = false;
+
         [Space]
         [SerializeField] private StepManager stepManager = null;
 
@@ -71,6 +76,7 @@ namespace FPS
                 if (capsuleCol == null) capsuleCol = gameObject.AddComponent<CapsuleCollider>();
             }
 
+            capsuleHeight_standing = body.height;
             capsuleCol.height = body.height;
             capsuleCol.center = body.center;
             capsuleCol.radius = body.radius + 0.1f;
@@ -114,9 +120,13 @@ namespace FPS
             camInputY = body.transform.rotation.eulerAngles.y + (Input.GetAxisRaw("Mouse X") * cameraSpeed);
             body.transform.rotation = Quaternion.Euler(0, camInputY, 0);
 
+            if (Input.GetKeyDown(KeyCode.LeftControl)) crouching = !crouching; // Toggle crouch
+
             if (!onLadder)
             {
                 BaseMovement();
+
+                capsuleCol.height = body.height = crouching ? capsuleHeight_crouched : capsuleHeight_standing;
             }
             else
             {
@@ -148,6 +158,7 @@ namespace FPS
         {
             bool groundedLastFrame = grounded;
             grounded = Physics.CheckSphere(GetGroundCheckPosition(), groundDist, groundMask);
+            float camStart = crouching ? cameraStartY - (capsuleHeight_standing - capsuleHeight_crouched) : cameraStartY;
 
             if (grounded)
             {
@@ -167,10 +178,10 @@ namespace FPS
                 // Jump and land
                 if (groundedLastFrame == false && groundTime >= Time.deltaTime)
                 {
-                    camTarget = new Vector3(0, cameraStartY - landIntensity);
+                    camTarget = new Vector3(0, camStart - landIntensity);
                     stepManager?.Land();
                 }
-                else camTarget = new Vector3(0, cameraStartY + jumpIntensity);
+                else camTarget = new Vector3(0, camStart + jumpIntensity);
 
                 camSpd = transitionSpeed * 10.0f;
             }
@@ -183,9 +194,9 @@ namespace FPS
                 stepTime += (stepSpeed * body.velocity.magnitude * Time.deltaTime) + Time.deltaTime;
 
                 if (stepTime >= 6.28318) stepTime = 0.0f;
-                camTarget = new Vector3(0, cameraStartY + (stepScale * stepEval));
+                camTarget = new Vector3(0, camStart + (stepScale * stepEval));
 
-                if (stepEval <= -0.9f && camTarget.y < cameraStartY) stepManager?.TakeStep();
+                if (stepEval <= -0.9f && camTarget.y < camStart) stepManager?.TakeStep();
 
                 camSpd = transitionSpeed;
             }
