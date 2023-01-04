@@ -14,6 +14,9 @@ namespace FPS.UI
         private CompassItem[] compassItems = null;
         private Image[] icons = null;
 
+        [SerializeField] private float maxScale = 0;
+        [SerializeField] private float minScale = 1f;
+
 #if UNITY_EDITOR
         private void OnValidate()
         {
@@ -44,12 +47,30 @@ namespace FPS.UI
                         continue;
                     }
 
+                    float dist = Vector3.Distance(new Vector3(compassItems[i].transform.position.x, playerBody.position.y, compassItems[i].transform.position.z), playerBody.position);
+                    if (dist > compassItems[i].visibilityDistance)
+                    {
+                        icons[i].gameObject.SetActive(false);
+                        continue;
+                    }
+                    else
+                    {
+                        float scale = Mathf.Lerp(maxScale, minScale, dist / compassItems[i].visibilityDistance);
+                        icons[i].transform.localScale = Vector3.one * scale;
+                    }
+
                     Vector3 dir = (new Vector3(compassItems[i].transform.position.x, playerBody.position.y, compassItems[i].transform.position.z) - playerBody.position).normalized;
                     float angle = Vector3.SignedAngle(playerBody.transform.forward, dir, Vector3.up) / 180;
 
                     if (icons[i].gameObject.activeSelf == false) icons[i].gameObject.SetActive(true);
                     icons[i].sprite = compassItems[i].icon;
                     icons[i].rectTransform.localPosition = Vector2.right * angle * turner.rectTransform.sizeDelta.x;
+
+                    var text = icons[i].GetComponentInChildren<Text>();
+                    if (text)
+                    {
+                        text.text = $"{(int)dist}m";
+                    }
                 }
 
                 if (r != -1)
@@ -90,6 +111,8 @@ namespace FPS.UI
                     {
                         if (oldIcons != null && i < oldIcons.Length) icons[i] = oldIcons[i];
                         else icons[i] = Instantiate(compassItemPrefab, turner.transform);
+
+                        if (maxScale == 0) maxScale = compassItemPrefab.transform.localScale.x;
                     }
                 }
             }
