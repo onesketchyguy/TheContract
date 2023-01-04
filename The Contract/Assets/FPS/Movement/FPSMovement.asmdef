@@ -1,3 +1,16 @@
 {
-	"name": "FPSMovement"
+    "name": "FPSMovement",
+    "rootNamespace": "",
+    "references": [
+        "GUID:8f02340a3d00a504c87f81b60a1d5961"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }

@@ -5,7 +5,7 @@ using FPS.UI;
 
 namespace FPS.Interaction
 {
-    public class InteractionManager : MonoBehaviour
+    public class InteractionManager : MonoBehaviour, Input.IMouse, Input.IInteractInput
     {
         [SerializeField] private Transform rayparent = null;
         [SerializeField] private LayerMask interactableMask = 0;
@@ -15,14 +15,13 @@ namespace FPS.Interaction
         private bool holding = false;
         private bool throwInput = false;
         private bool pickupInput = false;
+        private bool interact = false;
         [SerializeField] private TooltipManager tooltip = null;
 
         [SerializeField] HighlightPlus.HighlightProfile highlightProfile = null;
 
         private void Update()
         {
-            if (Input.GetMouseButtonUp(0)) throwInput = true;
-            if (Input.GetMouseButtonUp(1)) pickupInput = true;
             HandleHolding();
 
             if (Time.frameCount % 3 != 0) return;
@@ -86,9 +85,8 @@ namespace FPS.Interaction
             {
                 tooltip.Set(interactable.elementInfo, 10);
 
-                if (pickupInput)
+                if (interact)
                 {
-                    pickupInput = false;
                     interactable.OnInteract();
                 }
 
@@ -166,6 +164,17 @@ namespace FPS.Interaction
             }
 
             return highlightEffect;
+        }
+
+        public void SetMouseInput(Input.ButtonState left, Input.ButtonState right)
+        {
+            if (left == Input.ButtonState.Up) throwInput = true;
+            if (right == Input.ButtonState.Up) pickupInput = true;
+        }
+
+        public void SetInteracting(bool v)
+        {
+            interact = v;
         }
 
 #if UNITY_EDITOR

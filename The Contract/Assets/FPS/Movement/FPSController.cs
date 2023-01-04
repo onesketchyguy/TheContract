@@ -1,10 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace FPS
 {
-    public class FPSController : MonoBehaviour
+    public class FPSController : MonoBehaviour, Input.IMove
     {
         [Header("Movement")]
         [SerializeField] private CharacterController body = null;
@@ -102,26 +100,6 @@ namespace FPS
 
         private void Update()
         {
-            // Movement input
-            input.x = Input.GetAxisRaw("Horizontal");
-            input.z = Input.GetAxisRaw("Vertical");
-
-            runInput = Mathf.Lerp(runInput, Input.GetKey(KeyCode.LeftShift) ? 1.1f : -0.1f, 10.0f * Time.deltaTime);
-
-            // Jump input
-            if (Input.GetKeyDown(KeyCode.Space)) stepManager?.Jump();
-            input.y = Input.GetKeyDown(KeyCode.Space) ? 1 : 0;
-
-            // Camera input
-            camRotX -= (Input.GetAxisRaw("Mouse Y") * cameraSpeed);
-            camRotX = Mathf.Clamp(camRotX, -camClamp, camClamp);
-            cameraPeg.localRotation = Quaternion.Euler(camRotX, 0, 0);
-
-            camInputY = body.transform.rotation.eulerAngles.y + (Input.GetAxisRaw("Mouse X") * cameraSpeed);
-            body.transform.rotation = Quaternion.Euler(0, camInputY, 0);
-
-            if (Input.GetKeyDown(KeyCode.LeftControl)) crouching = !crouching; // Toggle crouch
-
             if (!onLadder)
             {
                 BaseMovement();
@@ -218,6 +196,29 @@ namespace FPS
 
             body.Move(velocity * Time.deltaTime); // apply velocity
         }
+
+        public void SetMovement(Vector3 move, bool sprint)
+        {
+            // Movement input
+            input = move;
+            runInput = Mathf.Lerp(runInput, sprint ? 1.1f : -0.1f, 10.0f * Time.deltaTime);
+
+            // Jump input
+            if (move.y > 0) stepManager?.Jump();
+        }
+
+        public void SetCamera(Vector2 cam)
+        {
+            // Camera input
+            camRotX -= (cam.y * cameraSpeed);
+            camRotX = Mathf.Clamp(camRotX, -camClamp, camClamp);
+            cameraPeg.localRotation = Quaternion.Euler(camRotX, 0, 0);
+
+            camInputY = body.transform.rotation.eulerAngles.y + (cam.x * cameraSpeed);
+            body.transform.rotation = Quaternion.Euler(0, camInputY, 0);
+        }
+
+        public void ToggleCrouch() => crouching = !crouching;
 
         private void OnCollisionEnter(Collision collision)
         {

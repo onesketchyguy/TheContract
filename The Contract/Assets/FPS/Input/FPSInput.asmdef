@@ -1,6 +1,6 @@
 {
-    "name": "FPSUI",
-    "rootNamespace": "FPS.UI",
+    "name": "FPSInput",
+    "rootNamespace": "FPS.Input",
     "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],

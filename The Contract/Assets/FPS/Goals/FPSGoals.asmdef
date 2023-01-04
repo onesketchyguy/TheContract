@@ -1,3 +1,14 @@
 {
-	"name": "FPSGoals"
+    "name": "FPSGoals",
+    "rootNamespace": "FPS.Goals",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }
